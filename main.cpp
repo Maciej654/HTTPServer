@@ -4,9 +4,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <cstring>
+#include <sstream>
 
 #define SERVER_PORT 1234
 #define QUEUE_SIZE 5
+#define BUFFER_LENGTH 100
 
 int main(int argc, char* argv[]) {
     int nSocket, nClientSocket;
@@ -57,10 +59,16 @@ int main(int argc, char* argv[]) {
 
         printf("%s: [connection from %s]\n", argv[0], inet_ntoa((in_addr)stClientAddr.sin_addr));
 
-        char buffer[100];
-        read(nClientSocket,buffer,100);
-        std::string input(buffer);
-        std::cout << input << std::endl << std::endl;
+        //toDo do something with read!!!
+        char buffer[BUFFER_LENGTH];
+        std::string data = "";
+        int f = 0;
+        do{
+           f = read(nClientSocket,buffer,BUFFER_LENGTH);
+           data.append(buffer);
+           memset(buffer,0,BUFFER_LENGTH);
+        }while(f == BUFFER_LENGTH);
+
         std::string msg = "HTTP/1.1 200 OK\n"
                           "Content-Length: 100\n"
                           "Content-Type: text/html\n"
@@ -69,7 +77,6 @@ int main(int argc, char* argv[]) {
                           "<h1>Brace yourself</h1>\n"
                           "<h1>Sesja is coming</h1>\n"
                           "</body>";
-        std::cout << msg << std::endl;
         write(nClientSocket, msg.c_str(), msg.size());
 
         close(nClientSocket);
