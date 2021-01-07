@@ -10,7 +10,7 @@
 #define QUEUE_SIZE 5
 #define BUFFER_LENGTH 100
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     int nSocket, nClientSocket;
     int nBind, nListen;
     int nFoo = 1;
@@ -25,58 +25,88 @@ int main(int argc, char* argv[]) {
 
     /* create a socket */
     nSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (nSocket < 0)
-    {
+    if (nSocket < 0) {
         fprintf(stderr, "%s: Can't create a socket.\n", argv[0]);
         exit(1);
     }
-    setsockopt(nSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&nFoo, sizeof(nFoo));
+    setsockopt(nSocket, SOL_SOCKET, SO_REUSEADDR, (char *) &nFoo, sizeof(nFoo));
 
     /* bind a name to a socket */
-    nBind = bind(nSocket, (sockaddr*)&stAddr, sizeof(sockaddr));
-    if (nBind < 0)
-    {
+    nBind = bind(nSocket, (sockaddr *) &stAddr, sizeof(sockaddr));
+    if (nBind < 0) {
         fprintf(stderr, "%s: Can't bind a name to a socket.\n", argv[0]);
         exit(1);
     }
     /* specify queue size */
     nListen = listen(nSocket, QUEUE_SIZE);
-    if (nListen < 0)
-    {
+    if (nListen < 0) {
         fprintf(stderr, "%s: Can't set queue size.\n", argv[0]);
     }
 
-    while(true)
-    {
+    while (true) {
         /* block for connection request */
         nTmp = sizeof(sockaddr);
-        nClientSocket = accept(nSocket, (sockaddr*)&stClientAddr, &nTmp);
-        if (nClientSocket < 0)
-        {
+        nClientSocket = accept(nSocket, (sockaddr *) &stClientAddr, &nTmp);
+        if (nClientSocket < 0) {
             fprintf(stderr, "%s: Can't create a connection's socket.\n", argv[0]);
             exit(1);
         }
 
-        printf("%s: [connection from %s]\n", argv[0], inet_ntoa((in_addr)stClientAddr.sin_addr));
+        printf("%s: [connection from %s]\n", argv[0], inet_ntoa((in_addr) stClientAddr.sin_addr));
 
         //toDo do something with read!!!
         char buffer[BUFFER_LENGTH];
         std::string data = "";
         int f = 0;
-        do{
-           f = read(nClientSocket,buffer,BUFFER_LENGTH);
-           data.append(buffer);
-           memset(buffer,0,BUFFER_LENGTH);
-        }while(f == BUFFER_LENGTH);
+        do {
+            f = read(nClientSocket, buffer, BUFFER_LENGTH);
+            data.append(buffer);
+            memset(buffer, 0, BUFFER_LENGTH);
+        } while (f == BUFFER_LENGTH);
 
-        std::string msg = "HTTP/1.1 200 OK\n"
-                          "Content-Length: 100\n"
-                          "Content-Type: text/html\n"
-                          "\n"
-                          "<body>\n"
-                          "<h1>Brace yourself</h1>\n"
-                          "<h1>Sesja is coming</h1>\n"
-                          "</body>";
+        std::cout << data;
+
+        std::string msg;
+
+        if (data.rfind("GET", 0) == 0) {
+            msg = "HTTP/1.1 200 OK\n"
+                  "Content-Length: 100\n"
+                  "Content-Type: text/html\n"
+                  "\n"
+                  "<body>\n"
+                  "<h1>Brace yourself</h1>\n"
+                  "<h1>This is GET request</h1>\n"
+                  "</body>";
+        } else if (data.rfind("PUT", 0) == 0) {
+            msg = "HTTP/1.1 200 OK\n"
+                  "Content-Length: 100\n"
+                  "Content-Type: text/html\n"
+                  "\n"
+                  "<body>\n"
+                  "<h1>Brace yourself</h1>\n"
+                  "<h1>This is PUT request</h1>\n"
+                  "</body>";
+        } else if (data.rfind("DELETE", 0) == 0) {
+            msg = "HTTP/1.1 200 OK\n"
+                  "Content-Length: 100\n"
+                  "Content-Type: text/html\n"
+                  "\n"
+                  "<body>\n"
+                  "<h1>Brace yourself</h1>\n"
+                  "<h1>This is DELETE request</h1>\n"
+                  "</body>";
+        } else if (data.rfind("HEAD", 0) == 0) { //TODO For some reason HEAD is not working
+            msg = "HTTP/1.1 200 OK\n"
+                  "Content-Length: 0\n"
+                  "Content-Type: application/json";
+        }
+        else { //TODO FIX BAD REQUEST
+            msg = "HTTP/1.1 400 Bad Request\n"
+                  "Content-Length: 100\n"
+                  "Content-Type: text/html\n";
+        }
+
+
         write(nClientSocket, msg.c_str(), msg.size());
 
         close(nClientSocket);
