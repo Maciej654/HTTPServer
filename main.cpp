@@ -105,16 +105,19 @@ int main(int argc, char *argv[]) {
                   "<h1>Brace yourself</h1>\n"
                   "<h1>This is DELETE request</h1>\n"
                   "</body>";
-        } else if (data.rfind("HEAD", 0) == 0) { //TODO For some reason HEAD is not working
+        } else if (data.rfind("HEAD", 0) == 0) {
             msg = "HTTP/1.1 200 OK\n"
                   "Content-Length: 0\n"
                   "Content-Type: application/json\n\n";
-        } else { //TODO FIX BAD REQUEST
+        } else {
             msg = "HTTP/1.1 400 Bad Request\n"
                   "Content-Length: 100\n"
-                  "Content-Type: text/html\n\n";
+                  "Content-Type: text/html\n"
+                  "\n"
+                  "<body>\n"
+                  "<h1>Bad request</h1>\n"
+                  "</body>";
         }
-
 
         write(nClientSocket, msg.c_str(), msg.size());
 
