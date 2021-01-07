@@ -5,12 +5,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <cstring>
-#include <sstream>
 #include <map>
 
 #define SERVER_PORT 1234
 #define QUEUE_SIZE 5
-#define BUFFER_LENGTH 240
+#define BUFFER_LENGTH 100
 
 int main(int argc, char *argv[]) {
     int nSocket, nClientSocket;
@@ -63,12 +62,13 @@ int main(int argc, char *argv[]) {
             ioctl(nClientSocket, FIONREAD, &len);
         } while (len < 1);
 
-        char buffer[len];
-        std::string data = "";
-        int f = 0;
-        f = read(nClientSocket, buffer, len);
-        data.append(buffer);
-        memset(buffer, 0, len);
+        char buffer[BUFFER_LENGTH];
+        std::string data;
+        while (len > 0) {
+            len -= read(nClientSocket, buffer, BUFFER_LENGTH);
+            data.append(buffer);
+            memset(buffer, 0, sizeof(buffer));
+        }
 
 //        do {
 
@@ -108,11 +108,11 @@ int main(int argc, char *argv[]) {
         } else if (data.rfind("HEAD", 0) == 0) { //TODO For some reason HEAD is not working
             msg = "HTTP/1.1 200 OK\n"
                   "Content-Length: 0\n"
-                  "Content-Type: application/json";
+                  "Content-Type: application/json\n\n";
         } else { //TODO FIX BAD REQUEST
             msg = "HTTP/1.1 400 Bad Request\n"
                   "Content-Length: 100\n"
-                  "Content-Type: text/html\n";
+                  "Content-Type: text/html\n\n";
         }
 
 
