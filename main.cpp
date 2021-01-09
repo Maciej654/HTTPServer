@@ -13,13 +13,18 @@
 
 #define SERVER_PORT 1234
 #define QUEUE_SIZE 5
-#define BUFFER_LENGTH 100
+#define BUFFER_LENGTH 125
 
 int main(int argc, char *argv[]) {
     int nSocket, nClientSocket;
     int nBind, nListen;
     int nFoo = 1;
-    std::regex const content_length_pattern = std::regex("Content-Length: ([0-9]+)\r\n");
+    const std::string OK_RESPONSE = "HTTP/1.1 200 OK\n";
+    const std::string CONTENT_LENGTH = "Content-Length: ";
+    const std::string JSON_TYPE = "Content-Type: application/json\n";
+    const std::regex content_length_pattern = std::regex("Content-Length: ([0-9]+)\r\n");
+    const std::regex json_title_pattern = std::regex("\"title\": \"(.*)\"");
+    const std::regex json_content_pattern = std::regex("\"content\": \"(.*)\"");
     std::unordered_map<std::string, std::string> notes;
     notes["some title"] = "some content";
     socklen_t nTmp;
@@ -73,28 +78,40 @@ int main(int argc, char *argv[]) {
         do {
             already_read += read(nClientSocket, buffer, BUFFER_LENGTH);
             data.append(buffer);
-            memset(buffer, 0, sizeof(buffer));
+            memset(buffer, 0, BUFFER_LENGTH);
             std::smatch regex_match;
             if(content_len < 0 && std::regex_search(data, regex_match, content_length_pattern)) {
                 content_len = std::stoi(regex_match.str(1));
             }
             position = data.rfind("\r\n\r\n");
         } while(position < 0 || already_read < (content_len + position + 4));
-
         std::cout << data << "\n\n";
+
+        std::string body = data.substr(position + 4);
+
+        std::smatch title_match;
+        std::smatch content_match;
+        std::regex_search(body, title_match, json_title_pattern);
+        std::regex_search(body, content_match, json_content_pattern);
+
+        std::cout << "TITLE: " << title_match.str(1) << "\n" << "CONTENT: " << content_match.str(1) << "\n";
+
 
         std::string msg;
 
         if (data.rfind("GET", 0) == 0) {
             std::stringstream ss;
-            ss << "HTTP/1.1 200 OK\n"
-                  "Content-Length: 100\n"
-                  "Content-Type: application/json\n"
-                  "\n"
-                  "{\n"
-                  "\"title\": \"some title\"\n"
-                  "\t\"content\": \"";
-            ss << notes.at("some title") << "\"\n}";
+            ss << OK_RESPONSE
+               << CONTENT_LENGTH
+               << "100" //TODO count body
+               << "\n"
+               << JSON_TYPE
+               <<
+               "\n"
+               "{\n"
+               "\t\"title\": \"" << title_match.str(1) << "\"\n"
+               "\t\"content\": \"";
+            ss << notes.at(title_match.str(1)) << "\"\n}";
             msg = ss.str();
 //               msg = "HTTP/1.1 200 OK\n"
 //                  "Content-Length: 100\n"
@@ -106,6 +123,7 @@ int main(int argc, char *argv[]) {
 //            msg +=
 //                  "</body>";
         } else if (data.rfind("PUT", 0) == 0) {
+            notes[title_match.str(1)] = content_match.str(1);
             msg = "HTTP/1.1 200 OK\n"
                   "Content-Length: 100\n"
                   "Content-Type: text/html\n"
