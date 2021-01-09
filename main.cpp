@@ -6,6 +6,10 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <map>
+#include <sstream>
+#include <iterator>
+#include <regex>
+#include <unordered_map>
 
 #define SERVER_PORT 1234
 #define QUEUE_SIZE 5
@@ -15,7 +19,9 @@ int main(int argc, char *argv[]) {
     int nSocket, nClientSocket;
     int nBind, nListen;
     int nFoo = 1;
-    std::map<std::string, std::string> notes;
+    std::regex const content_length_pattern = std::regex("Content-Length: ([0-9]+)\r\n");
+    std::unordered_map<std::string, std::string> notes;
+    notes["some title"] = "some content";
     socklen_t nTmp;
     sockaddr_in stAddr{}, stClientAddr{};
 
@@ -56,37 +62,49 @@ int main(int argc, char *argv[]) {
 
         printf("%s: [connection from %s]\n", argv[0], inet_ntoa((in_addr) stClientAddr.sin_addr));
 
-        //toDo do something with read!!! Maybe done
-        int len = 0;
-        do {
-            ioctl(nClientSocket, FIONREAD, &len);
-        } while (len < 1);
+        std::string data;
 
         char buffer[BUFFER_LENGTH];
-        std::string data;
-        while (len > 0) {
-            len -= read(nClientSocket, buffer, BUFFER_LENGTH);
+
+        int already_read = 0;
+        int content_len = -1;
+        int position;
+
+        do {
+            already_read += read(nClientSocket, buffer, BUFFER_LENGTH);
             data.append(buffer);
             memset(buffer, 0, sizeof(buffer));
-        }
-
-//        do {
-
-//        } while (f == BUFFER_LENGTH);
+            std::smatch regex_match;
+            if(content_len < 0 && std::regex_search(data, regex_match, content_length_pattern)) {
+                content_len = std::stoi(regex_match.str(1));
+            }
+            position = data.rfind("\r\n\r\n");
+        } while(position < 0 || already_read < (content_len + position + 4));
 
         std::cout << data << "\n\n";
 
         std::string msg;
 
         if (data.rfind("GET", 0) == 0) {
-            msg = "HTTP/1.1 200 OK\n"
+            std::stringstream ss;
+            ss << "HTTP/1.1 200 OK\n"
                   "Content-Length: 100\n"
-                  "Content-Type: text/html\n"
+                  "Content-Type: application/json\n"
                   "\n"
-                  "<body>\n"
-                  "<h1>Brace yourself</h1>\n"
-                  "<h1>This is GET request</h1>\n"
-                  "</body>";
+                  "{\n"
+                  "\"title\": \"some title\"\n"
+                  "\t\"content\": \"";
+            ss << notes.at("some title") << "\"\n}";
+            msg = ss.str();
+//               msg = "HTTP/1.1 200 OK\n"
+//                  "Content-Length: 100\n"
+//                  "Content-Type: application/json\n"
+//                  "\n"
+//                  "{\n"
+//                  "\"title\": \"title\"\n"
+//                  "\"content\": ";
+//            msg +=
+//                  "</body>";
         } else if (data.rfind("PUT", 0) == 0) {
             msg = "HTTP/1.1 200 OK\n"
                   "Content-Length: 100\n"
@@ -124,3 +142,4 @@ int main(int argc, char *argv[]) {
         close(nClientSocket);
     }
 }
+
