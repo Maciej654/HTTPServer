@@ -3,6 +3,11 @@
 //
 
 #include "Server.h"
+#include "requests/getRequest/GetRequest.h"
+#include "requests/putRequest/PutRequest.h"
+#include "requests/deleteRequest/DeleteRequest.h"
+#include "requests/headRequest/HeadRequest.h"
+#include "requests/badRequest/BadRequest.h"
 #include <iostream>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -11,7 +16,6 @@
 #include <thread>
 #include <regex>
 
-int threadNum = 0;
 
 Server::Server(const int serverPort) : SERVER_PORT(serverPort){}
 
@@ -61,8 +65,6 @@ void Server::runServer() const {
 }
 
  void Server::handleConnection(int socket) {
-    threadNum++;
-    std::cout << "thread number: " << threadNum << std::endl;
      if (socket < 0) {
          fprintf(stderr, "Can't create a connection's socket.\n");
          exit(1);
@@ -88,63 +90,21 @@ void Server::runServer() const {
 
      std::string body = data.substr(position + 4);
 
-     std::smatch title_match;
-     std::smatch content_match;
-     std::regex_search(body, title_match, json_title_pattern);
-     std::regex_search(body, content_match, json_content_pattern);
-
-     std::cout << "TITLE: " << title_match.str(1) << "\n" << "CONTENT: " << content_match.str(1) << "\n";
-
-
      std::string msg;
+     AbstractRequest *request;
 
      if (data.rfind("GET", 0) == 0) {
-         std::stringstream ss;
-         ss << OK_RESPONSE
-            << CONTENT_LENGTH
-            << "100" //TODO count body
-            << "\n"
-            << JSON_TYPE
-            <<
-            "\n"
-            "{\n"
-            "\t\"title\": \"" << title_match.str(1) << "\"\n"
-                                                       "\t\"content\": \"";
-         ss << notes.at(title_match.str(1)) << "\"\n}";
-         msg = ss.str();
+         request = new GetRequest (body, notes);
      } else if (data.rfind("PUT", 0) == 0) {
-         notes[title_match.str(1)] = content_match.str(1);
-         msg = "HTTP/1.1 200 OK\n"
-               "Content-Length: 100\n"
-               "Content-Type: text/html\n"
-               "\n"
-               "<body>\n"
-               "<h1>Brace yourself</h1>\n"
-               "<h1>This is PUT request</h1>\n"
-               "</body>";
+         request = new PutRequest (body, notes);
      } else if (data.rfind("DELETE", 0) == 0) {
-         msg = "HTTP/1.1 200 OK\n"
-               "Content-Length: 100\n"
-               "Content-Type: text/html\n"
-               "\n"
-               "<body>\n"
-               "<h1>Brace yourself</h1>\n"
-               "<h1>This is DELETE request</h1>\n"
-               "</body>";
+         request = new DeleteRequest(body,notes);
      } else if (data.rfind("HEAD", 0) == 0) {
-         msg = "HTTP/1.1 200 OK\n"
-               "Content-Length: 0\n"
-               "Content-Type: application/json\n\n";
+        request = new HeadRequest(body, notes);
      } else {
-         msg = "HTTP/1.1 400 Bad Request\n"
-               "Content-Length: 100\n"
-               "Content-Type: text/html\n"
-               "\n"
-               "<body>\n"
-               "<h1>Bad request</h1>\n"
-               "</body>";
+         request = new BadRequest(body, notes);
      }
-
+     msg = request->getResponseMessage();
      write(socket, msg.c_str(), msg.size());
 
      close(socket);
