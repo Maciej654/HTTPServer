@@ -11,7 +11,9 @@ std::string GetRequest::getResponseMessage() {
     } else {
         std::string body = getResponseBody();
         ss << OK_RESPONSE
-           << CONTENT_LENGTH << body.size() << "\n"
+           << CONTENT_LENGTH
+           << body.size()
+           << NEW_LINE
            << JSON_TYPE
            << body;
         return ss.str();

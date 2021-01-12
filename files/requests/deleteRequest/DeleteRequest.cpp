@@ -12,8 +12,6 @@ std::string DeleteRequest::getResponseMessage() {
     if (!checkIfNoteIsAvailable()) {
         return AbstractRequest::getNotFound();
     } else {
-
-
         notes.erase(title_match.str(1));
 
         ss << OK_RESPONSE

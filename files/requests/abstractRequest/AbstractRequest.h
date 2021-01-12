@@ -23,6 +23,7 @@ protected:
     const std::regex json_content_pattern = std::regex("\"content\"[ \t]*:[ \t]*\"([\\S\\s]*)\"");
     const std::string OK_RESPONSE = "HTTP/1.1 200 OK\n";
     const std::string NOT_FOUND = "HTTP/1.1 404 Not Found\n";
+    const std::string NOT_ALLOWED = "HTTP/1.1 405 Method Not Allowed\n";
     const std::string NEW_LINE = "\n";
     const std::string CONTENT_LENGTH = "Content-Length: ";
     const std::string JSON_TYPE = "Content-Type: application/json\n";

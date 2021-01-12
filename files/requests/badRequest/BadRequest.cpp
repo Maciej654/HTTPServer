@@ -7,11 +7,11 @@
 std::string BadRequest::getResponseMessage() {
     std::string body = getResponseBody();
     std::stringstream ss;
-    ss << "HTTP/1.1 405 Method Not Allowed\n"
-       << "Content-Length: "
+    ss << NOT_ALLOWED
+       << CONTENT_LENGTH
        << body.size() - 1
        << "\n"
-       "Content-Type: text/html\n"
+       << HTML_TYPE
        << body;
     return ss.str();
 }
