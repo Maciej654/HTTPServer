@@ -22,11 +22,14 @@ protected:
     const std::regex json_title_pattern = std::regex("\"title\"[ \t]*:[ \t]*\"([^\"\n]*)\"");
     const std::regex json_content_pattern = std::regex("\"content\"[ \t]*:[ \t]*\"([\\S\\s]*)\"");
     const std::string OK_RESPONSE = "HTTP/1.1 200 OK\n";
+    const std::string NOT_FOUND = "HTTP/1.1 404 Not Found\n";
+    const std::string NEW_LINE = "\n";
     const std::string CONTENT_LENGTH = "Content-Length: ";
     const std::string JSON_TYPE = "Content-Type: application/json\n";
+    const std::string HTML_TYPE = "Content-Type: text/html\n";
     std::unordered_map<std::string, std::string>& notes;
     virtual std::string getResponseBody() = 0;
-
+    virtual std::string getNotFound();
 };
 
 
