@@ -6,11 +6,15 @@
 
 std::string HeadRequest::getResponseMessage() {
     std::stringstream ss;
-    std::string body = getResponseBody();
-    ss << OK_RESPONSE
-       << CONTENT_LENGTH << body.size() << "\n"
-       << JSON_TYPE << "\n";
-    return ss.str();
+    if (!checkIfNoteIsAvailable()) {
+        return AbstractRequest::getNotFound();
+    } else {
+        std::string body = getResponseBody();
+        ss << OK_RESPONSE
+           << CONTENT_LENGTH << body.size() << "\n"
+           << JSON_TYPE << "\n";
+        return ss.str();
+    }
 }
 
 std::string HeadRequest::getResponseBody() {

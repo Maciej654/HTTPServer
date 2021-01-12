@@ -29,6 +29,7 @@ protected:
     const std::string HTML_TYPE = "Content-Type: text/html\n";
     std::unordered_map<std::string, std::string>& notes;
     virtual std::string getResponseBody() = 0;
+    virtual bool checkIfNoteIsAvailable();
     virtual std::string getNotFound();
 };
 

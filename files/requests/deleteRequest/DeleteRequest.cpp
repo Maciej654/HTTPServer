@@ -9,7 +9,7 @@ std::string DeleteRequest::getResponseMessage() {
     std::smatch title_match;
     std::regex_search(json, title_match, json_title_pattern);
     std::string body = getResponseBody();
-    if (notes.count(title_match.str(1)) == 0) {
+    if (!checkIfNoteIsAvailable()) {
         return AbstractRequest::getNotFound();
     } else {
 

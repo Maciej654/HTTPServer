@@ -22,3 +22,9 @@ std::string AbstractRequest::getNotFound() {
        << body;
     return ss.str();
 }
+
+bool AbstractRequest::checkIfNoteIsAvailable() {
+    std::smatch title_match;
+    std::regex_search(json, title_match, json_title_pattern);
+    return notes.count(title_match.str(1)) != 0;
+}

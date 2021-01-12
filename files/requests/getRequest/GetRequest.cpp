@@ -6,14 +6,19 @@
 
 std::string GetRequest::getResponseMessage() {
     std::stringstream ss;
-    std::string body = getResponseBody();
-    ss << OK_RESPONSE
-       << CONTENT_LENGTH << body.size() << "\n"
-       << JSON_TYPE
-       <<body;
-    return ss.str();
+    if (!checkIfNoteIsAvailable()) {
+        return AbstractRequest::getNotFound();
+    } else {
+        std::string body = getResponseBody();
+        ss << OK_RESPONSE
+           << CONTENT_LENGTH << body.size() << "\n"
+           << JSON_TYPE
+           << body;
+        return ss.str();
+    }
 }
-std::string GetRequest::getResponseBody(){ //toDo deal with invalid title or whole body
+
+std::string GetRequest::getResponseBody() { //toDo deal with invalid title or whole body
     std::stringstream ss;
     std::smatch title_match;
     std::smatch content_match;
