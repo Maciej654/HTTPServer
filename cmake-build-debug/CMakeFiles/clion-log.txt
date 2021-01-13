@@ -1,6 +1,4 @@
-C:\Users\Kolano99\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\201.7223.86\bin\cmake\win\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" C:\Users\Kolano99\CLionProjects\SK_Projekt_HTTP_Server
-CMake Error at CMakeLists.txt:1 (cmake_minimum_required):
-  CMake 3.17 or higher is required.  You are running version 3.16.5
-
-
--- Configuring incomplete, errors occurred!
+/snap/clion/138/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/maciej/STUDIA/3_rok/5_sem/SK2/SK_Projekt_HTTP_Server
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/maciej/STUDIA/3_rok/5_sem/SK2/SK_Projekt_HTTP_Server

@@ -6,6 +6,9 @@
 #include "PutRequest.h"
 
 std::string PutRequest::getResponseMessage() {
+    if(!containsOneTitle() || !containsOneContent()){
+        return AbstractRequest::getInvalidRequest();
+    }
     std::smatch title_match;
     std::smatch content_match;
     std::regex_search(json, title_match, json_title_pattern);

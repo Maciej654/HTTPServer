@@ -24,6 +24,7 @@ protected:
     const std::string OK_RESPONSE = "HTTP/1.1 200 OK\n";
     const std::string NOT_FOUND = "HTTP/1.1 404 Not Found\n";
     const std::string NOT_ALLOWED = "HTTP/1.1 405 Method Not Allowed\n";
+    const std::string BAD_REQUEST = "HTTP/1.1 400 Bad Request\n";
     const std::string NEW_LINE = "\n";
     const std::string CONTENT_LENGTH = "Content-Length: ";
     const std::string JSON_TYPE = "Content-Type: application/json\n";
@@ -32,6 +33,10 @@ protected:
     virtual std::string getResponseBody() = 0;
     virtual bool checkIfNoteIsAvailable();
     virtual std::string getNotFound();
+    std::string getInvalidRequest();
+    virtual bool containsOneContent();
+    virtual bool containsOneTitle();
+
 };
 
 

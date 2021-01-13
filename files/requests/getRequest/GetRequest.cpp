@@ -6,7 +6,10 @@
 
 std::string GetRequest::getResponseMessage() {
     std::stringstream ss;
-    if (!checkIfNoteIsAvailable()) {
+    if(!containsOneTitle()){
+        return AbstractRequest::getInvalidRequest();
+    }
+    else if (!checkIfNoteIsAvailable() ) {
         return AbstractRequest::getNotFound();
     } else {
         std::string body = getResponseBody();
