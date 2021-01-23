@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         Server server(port);
         server.runServer();
     } else {
-        Server server (1234);
+        Server server (80);
         server.runServer();
     }
 }
