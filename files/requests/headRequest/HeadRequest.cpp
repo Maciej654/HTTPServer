@@ -6,13 +6,23 @@
 
 std::string HeadRequest::getResponseMessage() {
     std::stringstream ss;
+    std::smatch title_match;
+    std::regex_search(json, title_match, json_title_pattern);
+    std::string title = title_match.str(1);
+
     if(!containsOneTitle()){
         return AbstractRequest::getInvalidRequest();
     }
-    else if (!checkIfNoteIsAvailable()) {
+    mutexForMap.lock();
+    if (!checkIfNoteIsAvailable()) {
+        mutexForMap.unlock();
         return AbstractRequest::getNotFound();
     } else {
+        notesMutexes.at(title).lock();
+        mutexForMap.unlock();
         std::string body = getResponseBody();
+        notesMutexes.at(title).unlock();
+
         ss << OK_RESPONSE
            << CONTENT_LENGTH
            << body.size()

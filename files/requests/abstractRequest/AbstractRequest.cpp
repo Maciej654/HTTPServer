@@ -3,11 +3,10 @@
 //
 
 #include <iostream>
+#include <utility>
 #include "AbstractRequest.h"
 
-AbstractRequest::AbstractRequest(std::string json, std::unordered_map<std::string, std::string> &notes) : json(
-        std::move(
-                json)), notes(notes) {}
+
 
 std::string AbstractRequest::getNotFound() {
     std::string body = "\n"
@@ -69,4 +68,9 @@ bool AbstractRequest::containsOneContent() {
     std::cout << "coooooontent "  << count << std::endl;
     return count == 1;
 }
+
+AbstractRequest::AbstractRequest(std::string json, std::unordered_map<std::string, std::string> &notes) : json(std::move(
+        json)), notes(notes) {}
+
+
 

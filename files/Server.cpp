@@ -98,7 +98,7 @@ void Server::runServer() const {
      } else if (data.rfind("PUT", 0) == 0) {
          request = new PutRequest (body, notes);
      } else if (data.rfind("DELETE", 0) == 0) {
-         request = new DeleteRequest(body,notes);
+         request = new DeleteRequest(body, notes);
      } else if (data.rfind("HEAD", 0) == 0) {
         request = new HeadRequest(body, notes);
      } else {

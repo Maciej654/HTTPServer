@@ -15,6 +15,7 @@
 class AbstractRequest {
 public:
     virtual std::string getResponseMessage() = 0;
+
     AbstractRequest(std::string json, std::unordered_map<std::string, std::string> &notes);
 
 protected:
@@ -30,6 +31,9 @@ protected:
     const std::string JSON_TYPE = "Content-Type: application/json\n";
     const std::string HTML_TYPE = "Content-Type: text/html\n";
     std::unordered_map<std::string, std::string>& notes;
+    static inline std::unordered_map<std::string, std::mutex> notesMutexes;
+    static inline std::mutex mutexForMap;
+
     virtual std::string getResponseBody() = 0;
     virtual bool checkIfNoteIsAvailable();
     virtual std::string getNotFound();

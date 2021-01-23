@@ -21,6 +21,8 @@ private:
     static const int BUFFER_LENGTH = 150;
     inline static const std::regex content_length_pattern = std::regex("Content-Length: ([0-9]+)\r\n");
     inline static std::unordered_map<std::string, std::string> notes;
+    inline static std::unordered_map<std::string, std::mutex> notesMutexes;
+    static std::mutex mutexForMap;
     static void handleConnection(int socket);
 };
 

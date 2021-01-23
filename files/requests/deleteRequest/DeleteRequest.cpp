@@ -8,14 +8,21 @@ std::string DeleteRequest::getResponseMessage() {
     std::stringstream ss;
     std::smatch title_match;
     std::regex_search(json, title_match, json_title_pattern);
+    std::string title = title_match.str(1);
+
     std::string body = getResponseBody();
     if(!containsOneTitle()){
         return AbstractRequest::getInvalidRequest();
     }
-    else if (!checkIfNoteIsAvailable()) {
-        return AbstractRequest::getNotFound();
+    mutexForMap.lock();
+     if (!checkIfNoteIsAvailable()) {
+         mutexForMap.unlock();
+         return AbstractRequest::getNotFound();
     } else {
-        notes.erase(title_match.str(1));
+         notesMutexes.at(title).lock();
+         notes.erase(title);
+         notesMutexes.erase(title);
+         mutexForMap.unlock();
 
         ss << OK_RESPONSE
            << CONTENT_LENGTH
