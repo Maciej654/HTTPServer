@@ -77,7 +77,17 @@ void Server::runServer() const {
      char buffer[BUFFER_LENGTH+1];
      memset(buffer, '\0', BUFFER_LENGTH+1);
      do {
-         already_read += read(socket, buffer, BUFFER_LENGTH);
+         int tmp_read = read(socket, buffer, BUFFER_LENGTH);
+         if (tmp_read < 0) {
+             fprintf(stderr, "Error while reading");
+             close(socket);
+             return;
+         } else if (tmp_read == 0) {
+             fprintf(stderr, "Socket hanged up");
+             close(socket);
+             return;
+         }
+         already_read += tmp_read;
          data.append(buffer);
          memset(buffer, '\0', BUFFER_LENGTH+1);
          std::smatch regex_match;
@@ -105,7 +115,13 @@ void Server::runServer() const {
          request = new BadRequest(body, notes);
      }
      msg = request->getResponseMessage();
-     write(socket, msg.c_str(), msg.size());
+     int tmp_write = write(socket, msg.c_str(), msg.size());
+
+     if(tmp_write < 0) {
+         fprintf(stderr, "Error while writing");
+         close(socket);
+         return;
+     }
 
      close(socket);
 }
