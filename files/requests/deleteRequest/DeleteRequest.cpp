@@ -37,7 +37,6 @@ std::string DeleteRequest::getResponseMessage() {
 
 std::string DeleteRequest::getResponseBody() {
     return "<body>\n"
-           "<h1>Brace yourself</h1>\n"
-           "<h1>This is DELETE request</h1>\n"
+           "<h1>Note has been deleted correctly</h1>\n"
            "</body>";
 }

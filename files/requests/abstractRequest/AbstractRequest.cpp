@@ -18,8 +18,7 @@ std::string AbstractRequest::getNotFound() {
        << CONTENT_LENGTH
        << body.size() - 1
        << NEW_LINE
-       << HTML_TYPE
-       << body;
+       << HTML_TYPE << NEW_LINE;
     return ss.str();
 }
 
@@ -52,7 +51,6 @@ bool AbstractRequest::containsOneTitle() {
         ++iter;
         ++count;
     }
-    std::cout << "tiiiiiiitle "  << count << std::endl;
     return count == 1;
 }
 
@@ -65,7 +63,6 @@ bool AbstractRequest::containsOneContent() {
         ++iter;
         ++count;
     }
-    std::cout << "coooooontent "  << count << std::endl;
     return count == 1;
 }
 
