@@ -115,19 +115,25 @@ void Server::runServer() const {
          request = new BadRequest(body, notes);
      }
      msg = request->getResponseMessage();
-     int tmp_write = write(socket, msg.c_str(), msg.size());
+     const char* write_buffer = msg.c_str();
+     const int msg_size = msg.size();
+     int total_bytes_written = 0;
+     int num_to_send = 0;
 
-     if(tmp_write < 0) {
-         fprintf(stderr, "Error while writing");
-         close(socket);
-         return;
+     while (total_bytes_written < msg_size){
+         num_to_send = BUFFER_LENGTH + total_bytes_written > msg_size ? msg_size - total_bytes_written : BUFFER_LENGTH;
+         int tmp_write =  write(socket, write_buffer + total_bytes_written, num_to_send);
+
+         if(tmp_write < 0) {
+             fprintf(stderr, "Error while writing");
+             close(socket);
+             return;
+         }
+         total_bytes_written+=tmp_write;
+
      }
-
      close(socket);
 }
-
-
-
 
 
 
